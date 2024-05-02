@@ -1,18 +1,50 @@
+# Notepad
+
+Notepad is a simple text editor application built using Java. It provides a user-friendly interface for creating, opening, editing, and saving text files.
+
+## Features
+
+- Create a new text file
+- Open an existing text file
+- Save the current file
+- Save the file with a different name (Save As)
+- Cut, copy, and paste text
+- Rename the file
+
+
+- Word wrap and status bar
+
+## Planned Features
+
+- Find and replace text
+- Line numbers
+- Font customization options
+- Print functionality
+- Split-view or multi-tab support
+- Undo and redo actions
+
+## Prerequisites
+
+To run Notepad, you need to have Java Development Kit (JDK) installed on your system. You can download the latest version of JDK from the official Oracle website: [https://www.oracle.com/java/technologies/javase-downloads.html](https://www.oracle.com/java/technologies/javase-downloads.html)
+
 ## Getting Started
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+1. Clone the repository or download the source code.
+2. Open the project in your preferred Java IDE (e.g., Eclipse, IntelliJ IDEA).
+3. Compile and run the `Main` class.
 
-## Folder Structure
+```
+// Example command to compile
+javac App.java
 
-The workspace contains two folders by default, where:
+// Example command to run
+java App
+```
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+## Usage
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+Upon launching Notepad, you will see the main window with a menu bar and a text area. Use the menu options or keyboard shortcuts to perform various actions, such as creating a new file, opening an existing file, saving the current file, and more.
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+## Contributing
 
-## Dependency Management
-
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+Contributions are welcome! If you find any bugs or have suggestions for improvements, please open an issue or submit a pull request.
