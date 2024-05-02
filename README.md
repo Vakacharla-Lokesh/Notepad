@@ -45,6 +45,13 @@ java App
 
 Upon launching Notepad, you will see the main window with a menu bar and a text area. Use the menu options or keyboard shortcuts to perform various actions, such as creating a new file, opening an existing file, saving the current file, and more.
 
+## Screenshots
+The Notepad allows the user to operate in both light and dark mode allowing for comfort.
+![Notepad Screenshot](Notepad\src\images\lightmode.png)
+![Notepad Screenshot](Notepad\src\images\darkmode.png)
+The user can also choose to view the status bar which can displays status of the current file.
+![Notepad Screenshot](Notepad\src\images\statusbar.png)
+
 ## Contributing
 
 Contributions are welcome! If you find any bugs or have suggestions for improvements, please open an issue or submit a pull request.
