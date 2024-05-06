@@ -3,8 +3,11 @@ import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dialog;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.*;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -19,22 +22,27 @@ public class Notepad_main extends JFrame implements KeyListener, ActionListener{
     int fontsize = 10;
     JLabel statusLabel = new JLabel();
     boolean status_lab = false;
+    Color fontcolor = Color.black;
+    String font_name = "Times New Roman";
     Notepad_main(){
         // SETTING LAYOUT FOR NOTEPAD GUI
         setLayout(new BorderLayout());
 
         // WRITABLE TEXT AREA FOR USERS
-        writing.setSize(475, 475);;
+        writing.setSize(475, 475);
+        writing.setMargin(new Insets(PROPERTIES, 5, ABORT, HEIGHT));
         add(writing);
 
         // ADDING FILE MENU
         JMenu fileMenu = new JMenu("File");
+        JMenuItem newItem = new JMenuItem("New");
         JMenuItem openItem = new JMenuItem("Open");
         JMenuItem renaMenuItem = new JMenuItem("Rename");
         JMenuItem savItem = new JMenuItem("Save");
         JMenuItem exMenuItem = new JMenuItem("Exit");
         
         // ADDING MENU ITEMS TO FILE MENU
+        fileMenu.add(newItem);
         fileMenu.add(openItem);
         fileMenu.add(renaMenuItem);
         fileMenu.add(savItem);
@@ -44,6 +52,7 @@ public class Notepad_main extends JFrame implements KeyListener, ActionListener{
         jmb.add(fileMenu);
 
         // ADDING ACTION LISTENERS TO MENU ITEMS
+        newItem.addActionListener(this);
         openItem.addActionListener(this);
         renaMenuItem.addActionListener(this);
         savItem.addActionListener(this);
@@ -51,6 +60,7 @@ public class Notepad_main extends JFrame implements KeyListener, ActionListener{
 
         // ADDING SHORTCUT KEYS TO FILE MENU ITEMS
         fileMenu.setMnemonic(KeyEvent.VK_F); //ALT + F TO ACCESS FILE MENU
+        newItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK)); //CTRL + N FOR NEW WINDOW
         openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK)); //CTRL + O FOR OPENING A FILE
         renaMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK)); //CTRL + F2 FOR RENAMING
         savItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK)); //CTRL + S FOR SAVING A FILE
@@ -58,6 +68,7 @@ public class Notepad_main extends JFrame implements KeyListener, ActionListener{
 
         // ADDING EDIT MENU TO NOTEPAD
         JMenu editMenu = new JMenu("Edit");
+        JMenuItem colormi = new JMenuItem("Color");
         JMenuItem fontmi = new JMenuItem("Font");
         JMenuItem sizemi = new JMenuItem("Size");
 
@@ -85,22 +96,23 @@ public class Notepad_main extends JFrame implements KeyListener, ActionListener{
 
         // ADDING ACTIONLISTENERS TO EACH FONT STYLE MENU ITEM IN THE FORM OF LAMBDA EXPRESSIONS
         normalmi.addActionListener((ae) -> {
-            writing.setFont(new Font("Comic Sans", Font.PLAIN,12));
+            writing.setFont(new Font(font_name, Font.PLAIN,fontsize));
         });
         boldmi.addActionListener((ae) -> {
-            writing.setFont(new Font("Comic Sans", Font.BOLD,12));
+            writing.setFont(new Font(font_name, Font.BOLD,fontsize));
         });
         italicmi.addActionListener((ae) ->{
-            writing.setFont(new Font("Comic Sans", Font.ITALIC,12));
+            writing.setFont(new Font(font_name, Font.ITALIC,fontsize));
         });
         bolditalicmi.addActionListener((ae) ->{
-            writing.setFont(new Font("Comic Sans", Font.BOLD|Font.ITALIC, 16));
+            writing.setFont(new Font(font_name, Font.BOLD|Font.ITALIC, fontsize));
         });
 
         // ADDING SHORTCUT KEYS TO EDIT MENU ITEM
         editMenu.setMnemonic(KeyEvent.VK_E);
 
         // ADDING MENU ITEMS TO EDIT MENU
+        editMenu.add(colormi);
         editMenu.add(fontmi);
         editMenu.add(sizemi);
         editMenu.add(stylemi);
@@ -108,6 +120,7 @@ public class Notepad_main extends JFrame implements KeyListener, ActionListener{
         jmb.add(editMenu);
 
         // ADDING ACTIONLISTENER TO FONT SIZE AND FONT
+        colormi.addActionListener(this);
         fontmi.addActionListener(this);
         sizemi.addActionListener(this);
 
@@ -141,9 +154,9 @@ public class Notepad_main extends JFrame implements KeyListener, ActionListener{
         jmb.add(viewMenu);
 
         // ADDING MENU BAR TO NOTEPAD
+        jmb.setVisible(true);
         setJMenuBar(jmb);
 
-        // HOW DO I ADD A STATUS BAR THAT DISPLAYS WORD COUNT, FONT SIZE AND STYLE?
         // SETTINGS OF THE JFRAME
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setTitle("New" + name);
@@ -199,7 +212,10 @@ public class Notepad_main extends JFrame implements KeyListener, ActionListener{
         else if(comstr.equals("Dark")){
             getContentPane().setBackground(Color.darkGray);
             writing.setBackground(Color.darkGray);
-            writing.setForeground(Color.white);
+            if(fontcolor == Color.darkGray || fontcolor == Color.black){
+                fontcolor = Color.white;
+            }
+            writing.setForeground(fontcolor);
             jmb.setBackground(Color.gray);
             jmb.setForeground(Color.white);
         }
@@ -247,7 +263,56 @@ public class Notepad_main extends JFrame implements KeyListener, ActionListener{
             status_lab = false;
             this.remove(statusLabel);
         }
+
+        if(comstr.equals("New")){
+            Notepad_main obj = new Notepad_main();
+        }
+
+        if(comstr.equals("Color")){
+            Color color = JColorChooser.showDialog(this, "Choose a color", Color.black);
+            writing.setForeground(color);
+            fontcolor = color;
+        }
+
+        if(comstr.equals("Font")){
+            // CREATING A DIALOG BOX FOR SELECTING FONT FAMILY
+            JDialog popup = new JDialog();
+            // LABEL FOR FONT NAME
+            JLabel fontLabel = new JLabel("Font Family:");
+            // CREATING AN ARRAY OF STRINGS TO PASS IN THE COMBO BOX
+            String [] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+            // CREATING A COMBOBOX FOR THE USER TO CHOOSE FROM
+            @SuppressWarnings("rawtypes")
+            JComboBox font = new JComboBox<String>(fonts);
+            // SETTING DEFAULT SELECTED ITEM FOR USER
+            font.setSelectedItem("Times New Roman");
+            // CREATING OK BUTTON FOR USER TO SET FONT FAMILY AND THEN CLOSE THE POPUP
+            JButton ok_Button = new JButton("Ok");
+            ok_Button.addActionListener((ae) ->{
+                font_name = (String)font.getSelectedItem();
+                popup.dispose();
+                
+            });
+            // SETTING ATTRIBUTES TO DIALOG BOX
+            popup.setTitle("Font Family");
+            popup.setAlwaysOnTop(true);
+            popup.setSize(350, 150);
+            popup.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+            popup.setLayout(new GridLayout(2,2, 35, 35));
+            // ADDING COMPONENTS TO THE POPUP DALOG BOX
+            popup.add(fontLabel);
+            popup.add(font);
+            popup.add(ok_Button);
+            Font font_curr = new Font(font_name, Font.PLAIN, fontsize);
+            writing.setFont(font_curr);
+
+            popup.setVisible(true);
+        }
     }
+
+    // public Insets getInsets(){
+    //     return new Insets(10, 10, 10 ,10);
+    // }
 }
 
 
@@ -275,17 +340,23 @@ class MydialogBox extends Dialog{
         }
     }
     
-    public MydialogBox(JFrame parent, String title, JTextArea writable){
+    public MydialogBox(Notepad_main parent, String title, JTextArea writable){
         super(parent, title, false);
         namelabel.setText("Size: ");
         add(namelabel);
-        add(nameField);
+        // add(nameField);
+        JSpinner fontSpinner = new JSpinner();
+        fontSpinner.setPreferredSize(new Dimension(50, 25));
+        fontSpinner.setValue(parent.fontsize);
+        add(fontSpinner);
         add(okButton);
         okButton.addActionListener((ae) -> {
-            int size = Integer.parseInt(nameField.getText());
-            writable.setFont(new Font("Comic Sans", Font.BOLD, size));
+            parent.fontsize = (Integer)(fontSpinner.getValue());
+            writable.setFont(new Font(parent.font_name, Font.BOLD, parent.fontsize));
+            // parent.fontsize = size;
             dispose();
         });
+        
         add(cancelButton);
         cancelButton.addActionListener((ae) -> dispose());
         setLayout(new GridLayout(2, 2, 40, 40));
