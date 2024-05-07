@@ -1,5 +1,6 @@
 import javax.swing.*;
-
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dialog;
@@ -31,6 +32,7 @@ public class Notepad_main extends JFrame implements KeyListener, ActionListener{
         // WRITABLE TEXT AREA FOR USERS
         writing.setSize(475, 475);
         writing.setMargin(new Insets(PROPERTIES, 5, ABORT, HEIGHT));
+        writing.setLineWrap(true);
         add(writing);
 
         // ADDING FILE MENU
@@ -185,134 +187,287 @@ public class Notepad_main extends JFrame implements KeyListener, ActionListener{
     @Override
     public void actionPerformed(ActionEvent e) {
         String comstr = e.getActionCommand();
-        if(comstr.equals("Rename")){
-            new MydialogBox(this, comstr);
-        }
-
-        if(comstr.equals("Save")){
-            new MydialogBox(this, comstr);
-        }
-        
-        if(comstr.equals("Size")){
-            new MydialogBox(this, comstr, writing);
-        }
-
-        if(comstr.equals("Exit")){
-            dispose();
-        }
-
-        if(comstr.equals("Light")){
-            getContentPane().setBackground(null);
-            writing.setBackground(null);
-            writing.setForeground(Color.black);
-            jmb.setBackground(null);
-            jmb.setForeground(Color.black);
-        }
-
-        else if(comstr.equals("Dark")){
-            getContentPane().setBackground(Color.darkGray);
-            writing.setBackground(Color.darkGray);
-            if(fontcolor == Color.darkGray || fontcolor == Color.black){
-                fontcolor = Color.white;
-            }
-            writing.setForeground(fontcolor);
-            jmb.setBackground(Color.gray);
-            jmb.setForeground(Color.white);
-        }
-
-        if (comstr.equals("Save")) {
-            JFileChooser save = new JFileChooser(); 
-            int option = save.showSaveDialog(this); 
-
-            if (option == JFileChooser.APPROVE_OPTION) {
-                try {
-                    BufferedWriter out = new BufferedWriter(new FileWriter(save.getSelectedFile().getPath()));
-                    out.write(this.writing.getText()); 
-                    out.close(); 
-                } catch (Exception ex) { 
-                    System.out.println(ex.getMessage());
+        switch (comstr) {
+            case "Rename":
+                new MydialogBox(this, comstr);
+                break;
+            
+            // case "Save":
+            //     new MydialogBox(this, comstr);
+            //     break;
+            case "Size":
+                new MydialogBox(this, comstr, writing);
+                break;
+            case "Exit":
+                dispose();
+                break;
+            case "Light":    
+                getContentPane().setBackground(null);
+                writing.setBackground(null);
+                writing.setForeground(Color.black);
+                jmb.setBackground(null);
+                jmb.setForeground(Color.black);
+                statusLabel.setBackground(null);
+                statusLabel.setForeground(Color.black);
+                break;
+            case "Dark":
+                getContentPane().setBackground(Color.darkGray);
+                writing.setBackground(Color.darkGray);
+                if(fontcolor == Color.darkGray || fontcolor == Color.black){
+                    fontcolor = Color.white;
                 }
-            }
-        }
-        if (comstr.equals("Open")) {
-            JFileChooser open = new JFileChooser(); 
-            int option = open.showOpenDialog(this); 
+                writing.setForeground(fontcolor);
+                jmb.setBackground(Color.gray);
+                jmb.setForeground(Color.white);
+                statusLabel.setBackground(Color.gray);
+                statusLabel.setForeground(Color.white);
+                break;
+            case "Save":
+                JFileChooser save = new JFileChooser(); 
+                int option = save.showSaveDialog(this); 
 
-            if (option == JFileChooser.APPROVE_OPTION) {
-                writing.setText(""); 
-                try {
-                    Scanner scan = new Scanner(new FileReader(open.getSelectedFile().getPath()));
-                    while (scan.hasNext()){
-                        writing.append(scan.nextLine() + "\n"); 
-                    }
-                    scan.close();
-                } catch (Exception ex) {
+                if (option == JFileChooser.APPROVE_OPTION) {
+                    try {
+                        BufferedWriter out = new BufferedWriter(new FileWriter(save.getSelectedFile().getPath()));
+                        out.write(this.writing.getText()); 
+                        out.close(); 
+                    } catch (Exception ex) { 
                         System.out.println(ex.getMessage());
+                    }
                 }
-                
-            }
+                break;
+
+
+            case "New":
+                Notepad_main obj = new Notepad_main();
+                break;
+            case "Open":
+                JFileChooser open = new JFileChooser(); 
+                int option_open = open.showOpenDialog(this); 
+
+                if (option_open == JFileChooser.APPROVE_OPTION) {
+                    writing.setText(""); 
+                    try {
+                        name = open.getSelectedFile().getName();
+                        this.setTitle(name);
+                        Scanner scan = new Scanner(new FileReader(open.getSelectedFile().getPath()));
+                        while (scan.hasNext()){
+                            writing.append(scan.nextLine() + "\n"); 
+                        }
+                        scan.close();
+                    } catch (Exception ex) {
+                            System.out.println(ex.getMessage());
+                    }
+                    
+                }
+                break;
+
+            case "Color":
+                Color color = JColorChooser.showDialog(this, "Choose a color", Color.black);
+                writing.setForeground(color);
+                fontcolor = color;
+                break;
+
+            case "Font":
+                // CREATING A DIALOG BOX FOR SELECTING FONT FAMILY
+                JDialog popup = new JDialog();
+                // LABEL FOR FONT NAME
+                JLabel fontLabel = new JLabel("Font Family:");
+                // CREATING AN ARRAY OF STRINGS TO PASS IN THE COMBO BOX
+                String [] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+                // CREATING A COMBOBOX FOR THE USER TO CHOOSE FROM
+                @SuppressWarnings("rawtypes")
+                JComboBox font = new JComboBox<String>(fonts);
+                // SETTING DEFAULT SELECTED ITEM FOR USER
+                font.setSelectedItem("Times New Roman");
+                // CREATING OK BUTTON FOR USER TO SET FONT FAMILY AND THEN CLOSE THE POPUP
+                JButton ok_Button = new JButton("Ok");
+                ok_Button.addActionListener((ae) ->{
+                    font_name = (String)font.getSelectedItem();
+                    popup.dispose();
+                    
+                });
+                // SETTING ATTRIBUTES TO DIALOG BOX
+                popup.setTitle("Font Family");
+                popup.setAlwaysOnTop(true);
+                popup.setSize(350, 150);
+                popup.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+                popup.setLayout(new GridLayout(2,2, 35, 35));
+                // ADDING COMPONENTS TO THE POPUP DALOG BOX
+                popup.add(fontLabel);
+                popup.add(font);
+                popup.add(ok_Button);
+                Font font_curr = new Font(font_name, Font.PLAIN, fontsize);
+                writing.setFont(font_curr);
+    
+                popup.setVisible(true);
+                break;
+
+            
+            default:
+                break;
         }
 
         if(comstr.equals("Status") && status_lab == false){
             status_lab = true;
             statusLabel.setText("Words: " + writing.getText().length() + " Font Size: " + this.fontsize);
             this.add(statusLabel, BorderLayout.SOUTH);
-            // this.getMenuBar().getMenu(2).getItem(2).setLabel("Status: true");
-        }
-        else{
-            status_lab = false;
-            this.remove(statusLabel);
-        }
+            writing.getDocument().addDocumentListener(new DocumentListener() {
 
-        if(comstr.equals("New")){
-            Notepad_main obj = new Notepad_main();
-        }
+                @Override
+                public void insertUpdate(DocumentEvent e) {
+                    updatewordcount();
+                }
 
-        if(comstr.equals("Color")){
-            Color color = JColorChooser.showDialog(this, "Choose a color", Color.black);
-            writing.setForeground(color);
-            fontcolor = color;
-        }
+                @Override
+                public void removeUpdate(DocumentEvent e) {
+                    updatewordcount();
+                }
 
-        if(comstr.equals("Font")){
-            // CREATING A DIALOG BOX FOR SELECTING FONT FAMILY
-            JDialog popup = new JDialog();
-            // LABEL FOR FONT NAME
-            JLabel fontLabel = new JLabel("Font Family:");
-            // CREATING AN ARRAY OF STRINGS TO PASS IN THE COMBO BOX
-            String [] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-            // CREATING A COMBOBOX FOR THE USER TO CHOOSE FROM
-            @SuppressWarnings("rawtypes")
-            JComboBox font = new JComboBox<String>(fonts);
-            // SETTING DEFAULT SELECTED ITEM FOR USER
-            font.setSelectedItem("Times New Roman");
-            // CREATING OK BUTTON FOR USER TO SET FONT FAMILY AND THEN CLOSE THE POPUP
-            JButton ok_Button = new JButton("Ok");
-            ok_Button.addActionListener((ae) ->{
-                font_name = (String)font.getSelectedItem();
-                popup.dispose();
+                @Override
+                public void changedUpdate(DocumentEvent e) {
+                    updatewordcount();
+                }
                 
             });
-            // SETTING ATTRIBUTES TO DIALOG BOX
-            popup.setTitle("Font Family");
-            popup.setAlwaysOnTop(true);
-            popup.setSize(350, 150);
-            popup.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-            popup.setLayout(new GridLayout(2,2, 35, 35));
-            // ADDING COMPONENTS TO THE POPUP DALOG BOX
-            popup.add(fontLabel);
-            popup.add(font);
-            popup.add(ok_Button);
-            Font font_curr = new Font(font_name, Font.PLAIN, fontsize);
-            writing.setFont(font_curr);
-
-            popup.setVisible(true);
+            // this.getMenuBar().getMenu(2).getItem(2).setLabel("Status: true");
         }
+
+        // REDACTED 👇👇👇
+        // if(comstr.equals("Rename")){
+        //     new MydialogBox(this, comstr);
+        // }
+
+        // if(comstr.equals("Save")){
+        //     new MydialogBox(this, comstr);
+        // }
+        
+        // if(comstr.equals("Size")){
+        //     new MydialogBox(this, comstr, writing);
+        // }
+
+        // if(comstr.equals("Exit")){
+        //     dispose();
+        // }
+
+        // if(comstr.equals("Light")){
+        //     getContentPane().setBackground(null);
+        //     writing.setBackground(null);
+        //     writing.setForeground(Color.black);
+        //     jmb.setBackground(null);
+        //     jmb.setForeground(Color.black);
+        //     statusLabel.setBackground(null);
+        //     statusLabel.setForeground(Color.black);
+        // }
+
+        // else if(comstr.equals("Dark")){
+        //     getContentPane().setBackground(Color.darkGray);
+        //     writing.setBackground(Color.darkGray);
+        //     if(fontcolor == Color.darkGray || fontcolor == Color.black){
+        //         fontcolor = Color.white;
+        //     }
+        //     writing.setForeground(fontcolor);
+        //     jmb.setBackground(Color.gray);
+        //     jmb.setForeground(Color.white);
+        //     statusLabel.setBackground(Color.gray);
+        //     statusLabel.setForeground(Color.white);
+        // }
+
+        // if (comstr.equals("Save")) {
+        //     JFileChooser save = new JFileChooser(); 
+        //     int option = save.showSaveDialog(this); 
+
+        //     if (option == JFileChooser.APPROVE_OPTION) {
+        //         try {
+        //             BufferedWriter out = new BufferedWriter(new FileWriter(save.getSelectedFile().getPath()));
+        //             out.write(this.writing.getText()); 
+        //             out.close(); 
+        //         } catch (Exception ex) { 
+        //             System.out.println(ex.getMessage());
+        //         }
+        //     }
+        // }
+        // if (comstr.equals("Open")) {
+        //     JFileChooser open = new JFileChooser(); 
+        //     int option = open.showOpenDialog(this); 
+
+        //     if (option == JFileChooser.APPROVE_OPTION) {
+        //         writing.setText(""); 
+        //         try {
+        //             name = open.getSelectedFile().getName();
+        //             this.setTitle(name);
+        //             Scanner scan = new Scanner(new FileReader(open.getSelectedFile().getPath()));
+        //             while (scan.hasNext()){
+        //                 writing.append(scan.nextLine() + "\n"); 
+        //             }
+        //             scan.close();
+        //         } catch (Exception ex) {
+        //                 System.out.println(ex.getMessage());
+        //         }
+                
+        //     }
+        // }
+        // else{
+        //     status_lab = false;
+        //     this.remove(statusLabel);
+        // }
+
+        // if(comstr.equals("New")){
+        //     Notepad_main obj = new Notepad_main();
+        // }
+
+        // if(comstr.equals("Color")){
+        //     Color color = JColorChooser.showDialog(this, "Choose a color", Color.black);
+        //     writing.setForeground(color);
+        //     fontcolor = color;
+        // }
+
+        // if(comstr.equals("Font")){
+        //     // CREATING A DIALOG BOX FOR SELECTING FONT FAMILY
+        //     JDialog popup = new JDialog();
+        //     // LABEL FOR FONT NAME
+        //     JLabel fontLabel = new JLabel("Font Family:");
+        //     // CREATING AN ARRAY OF STRINGS TO PASS IN THE COMBO BOX
+        //     String [] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+        //     // CREATING A COMBOBOX FOR THE USER TO CHOOSE FROM
+        //     @SuppressWarnings("rawtypes")
+        //     JComboBox font = new JComboBox<String>(fonts);
+        //     // SETTING DEFAULT SELECTED ITEM FOR USER
+        //     font.setSelectedItem("Times New Roman");
+        //     // CREATING OK BUTTON FOR USER TO SET FONT FAMILY AND THEN CLOSE THE POPUP
+        //     JButton ok_Button = new JButton("Ok");
+        //     ok_Button.addActionListener((ae) ->{
+        //         font_name = (String)font.getSelectedItem();
+        //         popup.dispose();
+                
+        //     });
+        //     // SETTING ATTRIBUTES TO DIALOG BOX
+        //     popup.setTitle("Font Family");
+        //     popup.setAlwaysOnTop(true);
+        //     popup.setSize(350, 150);
+        //     popup.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        //     popup.setLayout(new GridLayout(2,2, 35, 35));
+        //     // ADDING COMPONENTS TO THE POPUP DALOG BOX
+        //     popup.add(fontLabel);
+        //     popup.add(font);
+        //     popup.add(ok_Button);
+        //     Font font_curr = new Font(font_name, Font.PLAIN, fontsize);
+        //     writing.setFont(font_curr);
+
+        //     popup.setVisible(true);
+        // }
     }
 
     // public Insets getInsets(){
     //     return new Insets(10, 10, 10 ,10);
     // }
+    private void updatewordcount(){
+        String text = writing.getText();
+        String trimmed = text.trim();
+        int wordcount = trimmed.isEmpty() ? 0 : trimmed.split("\\s+").length;
+        statusLabel.setText("Words: " + wordcount + " Font Size: " + this.fontsize);
+        this.add(statusLabel, BorderLayout.SOUTH);
+    }
 }
 
 
